@@ -1,249 +1,233 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人履历 | 专业简历网站</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Benjamin Tam - Resume</title>
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👨‍💻</text></svg>">
 </head>
 <body>
-    <div id="app">
-        <header>
-            <div class="header-top">
-                <h1><i class="fas fa-user-tie"></i> {{ localized.title }}</h1>
-                <button @click="toggleLanguage" class="language-toggle">
-                    {{ currentLanguage === 'en' ? '中文' : 'EN' }}
-                </button>
-            </div>
-            <p class="subtitle">{{ localized.subtitle }}</p>
-            <div class="header-info">
-                <p><i class="fas fa-envelope"></i> <span>{{ userEmail }}</span></p>
-                <p><i class="fas fa-phone"></i> <span>{{ userPhone }}</span></p>
-                <p><i class="fas fa-map-marker-alt"></i> <span>{{ userLocation }}</span></p>
-            </div>
-        </header>
-
-        <main>
-            <div class="card">
-                <h2><i class="fas fa-user"></i> {{ localized.profile }}</h2>
-                <div class="profile-container">
-                    <div class="profile-header">
-                        <h3>{{ userName }}</h3>
-                        <p class="profile-title">{{ userTitle }}</p>
-                    </div>
-                    <p class="profile-summary">{{ userSummary }}</p>
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">{{ workExperience }}</span>
-                            <span class="stat-label">{{ localized.totalExperience }}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">{{ completedProjects }}</span>
-                            <span class="stat-label">{{ localized.totalProjects }}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">{{ skills.length }}</span>
-                            <span class="stat-label">{{ localized.totalSkills }}</span>
-                        </div>
-                    </div>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="profile-photo">
+                    <img src="Benjamin_Tam_Photo.jpg" alt="Benjamin Tam" class="photo">
                 </div>
-            </div>
-
-            <div class="card">
-                <h2><i class="fas fa-cogs"></i> {{ localized.skills }}</h2>
-                <div class="skills-container">
-                    <div class="skill-categories">
-                        <button 
-                            v-for="item in skillCategoryKeys" 
-                            :key="item.key"
-                            @click="activeSkillCategory = item.key"
-                            :class="['category-btn', { active: activeSkillCategory === item.key }]"
-                        >
-                            {{ item[currentLanguage] }}
-                        </button>
-                    </div>
-                    
-                    <div class="skills-list">
-                        <div v-for="skill in filteredSkills" :key="skill.name" class="skill-item">
-                            <div class="skill-header">
-                                <span class="skill-name">{{ skill.name }}</span>
-                            </div>
-                            <div class="skill-bar">
-                                <div class="skill-progress" :style="{ width: skill.level + '%' }"></div>
-                            </div>
-                            <div class="skill-tags">
-                                <span v-for="tag in skill.tags" :key="tag" class="skill-tag">{{ tag }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="skill-tags-cloud">
-                        <span v-for="tag in allSkillTags" :key="tag" class="tag-cloud-item">{{ tag }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2><i class="fas fa-briefcase"></i> {{ localized.experience }}</h2>
-                
-                <div class="experience-timeline">
-                    <div v-for="(job, index) in workExperiences" :key="index" class="timeline-item">
-                        <div class="timeline-header">
-                            <div class="timeline-left">
-                                <h3 class="job-title">{{ job.title }}</h3>
-                                <p class="company-name">{{ job.company }}</p>
-                            </div>
-                            <div class="timeline-right">
-                                <span class="job-period">{{ job.period }}</span>
-                                <span class="job-location">{{ job.location }}</span>
-                            </div>
-                        </div>
-                        <div class="timeline-content">
-                            <p class="job-description">{{ job.description }}</p>
-                            <div class="job-achievements">
-                                <h4>{{ localized.achievements }}：</h4>
-                                <ul>
-                                    <li v-for="(achievement, aIndex) in job.achievements" :key="aIndex">{{ achievement }}</li>
-                                </ul>
-                            </div>
-                            <div class="job-technologies">
-                                <span v-for="tech in job.technologies" :key="tech" class="tech-tag">{{ tech }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="experience-stats">
-                     <p>{{ localized.totalWorkExperience }}: {{ workExperience }} {{ localized.years }}</p>
-                     <p>{{ localized.totalPositions }}: {{ workExperiences.length }} {{ localized.positions }}</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2><i class="fas fa-graduation-cap"></i> {{ localized.education }}</h2>
-                
-                <div class="education-list">
-                    <div v-for="(edu, index) in education" :key="index" class="education-item">
-                        <div class="education-header">
-                            <div class="edu-left">
-                                <h3 class="degree">{{ edu.degree }}</h3>
-                                <p class="institution">{{ edu.institution }}</p>
-                            </div>
-                            <div class="edu-right">
-                                <span class="edu-period">{{ edu.period }}</span>
-                                <span class="edu-location">{{ edu.location }}</span>
-                            </div>
-                        </div>
-                        <div class="education-content">
-                            <p class="edu-field">{{ edu.field }}</p>
-                            <div class="edu-details">
-                                <p><strong>{{ localized.gpa }}:</strong> {{ edu.gpa }}</p>
-                                <p><strong>{{ localized.courses }}:</strong> {{ edu.courses.join(', ') }}</p>
-                                <p><strong>{{ localized.honors }}:</strong> {{ edu.honors }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="certifications">
-                     <h3><i class="fas fa-certificate"></i> {{ localized.certifications }}</h3>
-                    <div class="certs-list">
-                        <span v-for="cert in certifications" :key="cert" class="cert-tag">{{ cert }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2><i class="fas fa-address-book"></i> {{ localized.contact }}</h2>
-                
-                <div class="contact-container">
+                <div class="header-text">
+                    <h1 class="name">TAM WAI PAN BENJAMIN</h1>
+                    <h2 class="title">Machine Learning Engineer</h2>
                     <div class="contact-info">
                         <div class="contact-item">
-                            <i class="fas fa-user"></i>
-                            <div>
-                                <h4>{{ localized.name }}</h4>
-                                <p>{{ userName }}</p>
-                            </div>
+                            <i class="fas fa-phone"></i>
+                            <span>(852) 67080288</span>
                         </div>
                         <div class="contact-item">
                             <i class="fas fa-envelope"></i>
-                            <div>
-                                <h4>{{ localized.email }}</h4>
-                                <p>{{ userEmail }}</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <h4>{{ localized.phone }}</h4>
-                                <p>{{ userPhone }}</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <h4>{{ localized.address }}</h4>
-                                <p>{{ userLocation }}</p>
-                            </div>
+                            <span>benjamin.tam0607@gmail.com</span>
                         </div>
                         <div class="contact-item">
                             <i class="fab fa-linkedin"></i>
-                            <div>
-                                <h4>{{ localized.linkedin }}</h4>
-                                <p>{{ userLinkedIn }}</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fab fa-github"></i>
-                            <div>
-                                <h4>{{ localized.github }}</h4>
-                                <p>{{ userGitHub }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-form">
-                        <h3>{{ localized.sendMessage }}</h3>
-                        <div class="form-group">
-                            <label for="message-name"><i class="fas fa-user"></i> {{ localized.yourName }}：</label>
-                             <input type="text" id="message-name" v-model="messageName" :placeholder="localized.placeholderName">
-                        </div>
-                        <div class="form-group">
-                            <label for="message-email"><i class="fas fa-envelope"></i> {{ localized.yourEmail }}：</label>
-                             <input type="email" id="message-email" v-model="messageEmail" :placeholder="localized.placeholderEmail">
-                        </div>
-                        <div class="form-group">
-                            <label for="message-subject"><i class="fas fa-tag"></i> {{ localized.subject }}：</label>
-                             <input type="text" id="message-subject" v-model="messageSubject" :placeholder="localized.placeholderSubject">
-                        </div>
-                        <div class="form-group">
-                            <label for="message-content"><i class="fas fa-comment"></i> {{ localized.message }}：</label>
-                             <textarea id="message-content" v-model="messageContent" rows="4" :placeholder="localized.placeholderMessage"></textarea>
-                        </div>
-                        <button @click="sendMessage" class="btn btn-primary">
-                            <i class="fas fa-paper-plane"></i> {{ localized.sendMessage }}
-                        </button>
-                        <div v-if="messageSent" class="alert alert-success">
-                             <i class="fas fa-check-circle"></i> {{ localized.messageSent }}
+                            <a href="https://www.linkedin.com/in/benjamintam0607" target="_blank" rel="noopener">linkedin.com/in/benjamintam0607</a>
                         </div>
                     </div>
                 </div>
             </div>
+        </header>
+
+        <main class="main-content">
+            <section class="section" id="education">
+                <h2 class="section-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    EDUCATION
+                </h2>
+                <div class="section-content">
+                    <div class="timeline-item">
+                        <h3 class="item-title">Hong Kong Baptist University</h3>
+                        <div class="item-subtitle">Bachelor (Hons) of Science in Computer Science, Artificial Intelligence</div>
+                        <div class="item-period">2020 - 2024</div>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 class="item-title">TWGHs Sun Hoi Directors' College</h3>
+                        <div class="item-subtitle">The Hong Kong Diploma of Secondary Education</div>
+                        <div class="item-period">2016 - 2020</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="experience">
+                <h2 class="section-title">
+                    <i class="fas fa-briefcase"></i>
+                    PROFESSIONAL EXPERIENCE
+                </h2>
+                <div class="section-content">
+                    <div class="timeline-item">
+                        <h3 class="item-title">Vidi Labs Limited (Information Communications Technology)</h3>
+                        <div class="item-subtitle">Machine Learning Engineer</div>
+                        <div class="item-period">Jun 2024 - Nov 2025</div>
+                        <ul class="item-bullets">
+                            <li>Developed and fine-tuned large vision-language models (VLMs) using LLaMA-Factory, adapting models such as Qwen3-VL and Llava for multimodal understanding and generation, and deployed them in an interactive visual chatbot system.</li>
+                            <li>Built a full-stack object detection pipeline based on YOLO, covering data collection, automated labeling, model training, and deployment optimization, enabling rapid iteration and scalable model development.</li>
+                            <li>Architected a vision-only navigation framework for indoor autonomous operation, integrating monocular depth estimation, semantic mapping, and path planning; the system is currently under collaboration with Hong Kong International Airport for real-world logistics applications.</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 class="item-title">Vidi Labs Limited (Information Communications Technology)</h3>
+                        <div class="item-subtitle">Machine Learning Engineer Intern</div>
+                        <div class="item-period">Jun - Aug 2023</div>
+                        <ul class="item-bullets">
+                            <li>Developed and fine-tuned computer vision models (including CNNs and YOLO variants) for industrial automation tasks such as object detection and image classification.</li>
+                            <li>Implemented pipelines for text layout detection, OCR, and document structure analysis to extract structured information from complex visual documents.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="projects">
+                <h2 class="section-title">
+                    <i class="fas fa-code"></i>
+                    PROJECT EXPERIENCE
+                </h2>
+                <div class="section-content">
+                    <div class="project-item">
+                        <h3 class="item-title">Artificial Intelligence Applications Project: Low-Light Image Enhancement</h3>
+                        <div class="item-subtitle">Hong Kong Baptist University</div>
+                        <ul class="item-bullets">
+                            <li>Designed and implemented a deep learning–based image enhancement system using PyTorch and the RetinexNet architecture to improve visibility in low-light conditions.</li>
+                            <li>Prepared training data through systematic image cleaning, normalization, and preprocessing, ensuring high-quality input for model training.</li>
+                            <li>Evaluated model performance through qualitative and quantitative analysis, verifying that enhanced outputs met project requirements for visual clarity and structural fidelity.</li>
+                        </ul>
+                    </div>
+                    <div class="project-item">
+                        <h3 class="item-title">Software Engineering Project: Library Management System</h3>
+                        <div class="item-subtitle">Hong Kong Baptist University</div>
+                        <ul class="item-bullets">
+                            <li>Developed a full-featured web application using Vue.js, HTML, CSS, and JavaScript, implementing core functionalities including book cataloging, loan tracking, and return processing.</li>
+                            <li>Designed an intuitive user interface and integrated RESTful API endpoints to support efficient data retrieval and state management.</li>
+                            <li>Collaborated in an agile team environment to deliver a cohesive software solution, contributing to system architecture, component development, and on-time project completion.</li>
+                            <li>Contributed to team projects that received multiple international recognitions, including the Hong Kong ICT Awards 2024, the CES Innovation Award in Accessibility & Agetech, and the Venture of the Year Award at the SC WIN Now & Next Challenge.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="skills">
+                <h2 class="section-title">
+                    <i class="fas fa-tools"></i>
+                    SKILLS & COMPETENCIES
+                </h2>
+                <div class="section-content">
+                    <div class="skills-container">
+                        <div class="skill-category">
+                            <h3 class="skill-category-title">Programming Languages</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Python</span>
+                                <span class="skill-tag">Java</span>
+                                <span class="skill-tag">SQL</span>
+                                <span class="skill-tag">Vue</span>
+                                <span class="skill-tag">Three.js</span>
+                            </div>
+                        </div>
+                        <div class="skill-category">
+                            <h3 class="skill-category-title">AI/ML Technologies</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Machine Learning</span>
+                                <span class="skill-tag">Deep Learning</span>
+                                <span class="skill-tag">LLM</span>
+                                <span class="skill-tag">VLM</span>
+                                <span class="skill-tag">AGI</span>
+                                <span class="skill-tag">Langchain</span>
+                                <span class="skill-tag">RAG</span>
+                                <span class="skill-tag">Agentic AI</span>
+                            </div>
+                        </div>
+                        <div class="skill-category">
+                            <h3 class="skill-category-title">Tools & Frameworks</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">n8n</span>
+                                <span class="skill-tag">Stable diffusion</span>
+                                <span class="skill-tag">ComfyUI</span>
+                                <span class="skill-tag">Pytorch</span>
+                                <span class="skill-tag">TensorFlow</span>
+                                <span class="skill-tag">Pandas</span>
+                                <span class="skill-tag">Numpy</span>
+                                <span class="skill-tag">Matplotlib</span>
+                                <span class="skill-tag">OpenCV</span>
+                            </div>
+                        </div>
+                        <div class="skill-category">
+                            <h3 class="skill-category-title">Computer Vision</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Object Detection</span>
+                                <span class="skill-tag">Object Segmentation</span>
+                                <span class="skill-tag">X-Anylabeling</span>
+                            </div>
+                        </div>
+                        <div class="skill-category">
+                            <h3 class="skill-category-title">Platforms & Other</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Conda</span>
+                                <span class="skill-tag">Windows</span>
+                                <span class="skill-tag">Linux</span>
+                                <span class="skill-tag">Microsoft Office</span>
+                            </div>
+                        </div>
+                        <div class="skill-category">
+                            <h3 class="skill-category-title">Languages</h3>
+                            <div class="skill-tags">
+                                <span class="skill-tag">Cantonese</span>
+                                <span class="skill-tag">English</span>
+                                <span class="skill-tag">Mandarin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="volunteer">
+                <h2 class="section-title">
+                    <i class="fas fa-hands-helping"></i>
+                    VOLUNTEER & EXTRACURRICULAR ACTIVITIES
+                </h2>
+                <div class="section-content">
+                    <div class="volunteer-item">
+                        <h3 class="item-title">External Secretary, Hong Kong Baptist University Social Service Association</h3>
+                        <ul class="item-bullets">
+                            <li>Led a team of 10 volunteers in designing and delivering a community-based Cantonese language teaching initiative, overseeing curriculum planning and participant coordination.</li>
+                            <li>Served as the primary liaison between the association and external stakeholders, managing all outreach, partnership communications, and public engagement efforts.</li>
+                            <li>Maintained organized and up-to-date records of external correspondence, ensuring transparency and continuity in collaborative activities.</li>
+                        </ul>
+                    </div>
+                    <div class="volunteer-item">
+                        <h3 class="item-title">Volunteers of "Hang Seng - Conservancy Association Eco-Rangers"</h3>
+                        <ul class="item-bullets">
+                            <li>Joined a conservation team to conduct mountain clean-up activities, helping remove waste and protect natural habitats in Hong Kong's countryside.</li>
+                            <li>Supported environmental outreach efforts through participant engagement and on-site coordination.</li>
+                        </ul>
+                    </div>
+                    <div class="volunteer-item">
+                        <h3 class="item-title">Blood Donation Week Promotion Volunteers, Hong Kong Red Cross Blood Transfusion Service Centre</h3>
+                        <ul class="item-bullets">
+                            <li>Helped organize and coordinate on-campus promotion events to raise awareness and encourage voluntary blood donation.</li>
+                            <li>Collaborated with fellow volunteers to engage the public, answer questions, and support smooth event operations.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
         </main>
 
-        <footer>
-             <p>{{ localized.title }} &copy; 2025 | {{ localized.lastUpdatedLabel }}: {{ lastUpdated }}</p>
-            <p class="footer-links">
-                <a href="#" @click="downloadResume"><i class="fas fa-download"></i> {{ localized.download }}</a>
-                <a href="#" @click="printResume"><i class="fas fa-print"></i> {{ localized.print }}</a>
-                <a href="#app"><i class="fas fa-arrow-up"></i> {{ localized.backToTop }}</a>
-            </p>
-            <p class="footer-note">{{ localized.footerNote }}</p>
+        <footer class="footer">
+            <div class="footer-content">
+                <p>© <span id="current-year">2025</span> Benjamin Tam. All rights reserved.</p>
+                <p class="footer-note">Last updated: November 2025</p>
+            </div>
         </footer>
     </div>
 
-    <script src="app.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
